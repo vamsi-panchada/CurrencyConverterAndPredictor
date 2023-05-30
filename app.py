@@ -178,8 +178,7 @@ def converter():
     amount = st.number_input('Enter amount in '+fromCode + ' :')
 
     if st.button('Convert'):
-        url = 
-f'https://v6.exchangerate-api.com/v6/f999688a223170137c71e110/pair/{country_codes[fromCode]}/{country_codes[toCode]}/{amount}'
+        url =  f'https://v6.exchangerate-api.com/v6/f999688a223170137c71e110/pair/{country_codes[fromCode]}/{country_codes[toCode]}/{amount}'
         response = requests.get(url).json()
         result = response["conversion_result"]
         st.text(f'{amount} {country_codes[fromCode]} = {result} {country_codes[toCode]}')
