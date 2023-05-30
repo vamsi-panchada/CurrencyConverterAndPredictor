@@ -185,6 +185,7 @@ def converter():
 
 
 def predictor():
+    st.write('predictor app is under processing.')
     pass
 
 
