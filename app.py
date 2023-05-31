@@ -1,7 +1,5 @@
 import streamlit as st
-# import requests
-import yfinance as yf
-import datetime as dt
+import requests
 
 country_codes = {
     "UAE Dirham": "AED",
@@ -180,17 +178,9 @@ def converter():
     amount = st.number_input('Enter amount in '+fromCode + ' :')
 
     if st.button('Convert'):
-        # url =  f'https://v6.exchangerate-api.com/v6/f999688a223170137c71e110/pair/{country_codes[fromCode]}/{country_codes[toCode]}/{amount}'
-        # response = requests.get(url).json()
-        # result = response["conversion_result"]
-        print(f'{fromCode}{toCode}=X')
-        try:
-            RATE = round(yf.download(f'{country_codes[fromCode]}{country_codes[toCode]}=X', start=dt.date.today(), end=dt.date.today()+dt.timedelta(days=1))['Close'][0], 3)
-        
-        except:
-            print('Exception')
-            RATE = 1
-        result = amount*RATE
+        url =  f'https://v6.exchangerate-api.com/v6/f999688a223170137c71e110/pair/{country_codes[fromCode]}/{country_codes[toCode]}/{amount}'
+        response = requests.get(url).json()
+        result = response["conversion_result"]
         st.header('Result:')
         st.header(f'{amount} {country_codes[fromCode]} = {result} {country_codes[toCode]}')
 
