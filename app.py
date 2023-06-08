@@ -204,7 +204,7 @@ def main():
         st.write('please select an option from sidebar.')
 
 
-# if __name__ == '__main__':
-#     main()
+if __name__ == '__main__':
+    main()
 
-main()
+# main()
