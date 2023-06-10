@@ -193,10 +193,10 @@ def converter():
     fromValuePosition = valueCol.empty()
     toValuePosition = valueCol.empty()
 
-    fromCurrency = fromCurrencyPosition.selectbox('From Currency: ', countryCurrencyList)
+    fromCurrency = fromCurrencyPosition.selectbox('From Currency: ', countryCurrencyList, index=countryCurrencyList.index('United States Dollar'))
     toCountryCurrencyList = countryCurrencyList.copy()
     toCountryCurrencyList.remove(fromCurrency)
-    toCurrency = toCurrencyPosition.selectbox('To Currency: ', toCountryCurrencyList)
+    toCurrency = toCurrencyPosition.selectbox('To Currency: ', toCountryCurrencyList, index=toCountryCurrencyList.index('Indian Rupee'))
 
     rate = getRates(country_codes[fromCurrency], country_codes[toCurrency])
 
