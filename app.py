@@ -1,6 +1,8 @@
 import streamlit as st
 import requests
-
+import yfinance as yf
+import datetime as dt
+import plotly.express as px
 
 country_codes = {
     "Afghan Afghani": "AFN",
@@ -205,6 +207,20 @@ def converter():
     toValuePosition.markdown(f'<br><p style="font-family:Arial; font-size: 20px;">{round(fromValue*rate, 3)} {country_codes[toCurrency]}</p></br>', unsafe_allow_html=True)
 
 
+    # Graph Element code
+
+    data = yf.download(f'{country_codes[fromCurrency]}{country_codes[toCurrency]}=x', start=dt.date.today()-dt.timedelta(days=100), end=dt.date.today()+dt.timedelta(days=1))
+    data['Rate']=data['Close']
+
+    fig = px.line(data['Rate'], markers=True)
+    fig.update_layout(
+        title=f'{country_codes[fromCurrency]}vs{country_codes[toCurrency]}',
+        xaxis_title="Date",
+        yaxis_title="Rate",
+        legend_title="legend",
+        font=dict(family="Arial", size=20, color="green")
+        )
+    st.plotly_chart(fig, use_container_width=False)
 
 
 
