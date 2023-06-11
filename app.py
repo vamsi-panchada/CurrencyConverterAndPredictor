@@ -189,6 +189,8 @@ def converter():
 
     ratePosition = converterCol.empty()
     
+    periodPosition = graphCol.empty()
+    graphPosition = graphCol.empty()
 
     #convertion Column code
 
@@ -203,36 +205,126 @@ def converter():
     fromCurrency = fromCurrencyPosition.selectbox('From Currency: ', countryCurrencyList, index=countryCurrencyList.index('United States Dollar'))
     toCountryCurrencyList = countryCurrencyList.copy()
     toCountryCurrencyList.remove(fromCurrency)
-    toCurrency = toCurrencyPosition.selectbox('To Currency: ', toCountryCurrencyList, index=toCountryCurrencyList.index('Indian Rupee'))
-
-    rate = getRates(country_codes[fromCurrency], country_codes[toCurrency])
-
-    rateText = f'<p style="font-family:sans-serif; color:Black; font-size: 22px;"><br>1 {fromCurrency} is equals to </br>{round(rate, 4)} {toCurrency}</p>'
-    ratePosition.markdown(rateText, unsafe_allow_html=True)
+    try:
+        toCurrency = toCurrencyPosition.selectbox('To Currency: ', toCountryCurrencyList, index=toCountryCurrencyList.index('Indian Rupee'))
+    except:
+        toCurrency = toCurrencyPosition.selectbox('To Currency: ', toCountryCurrencyList, index=toCountryCurrencyList.index('United States Dollar'))
 
     fromValue = fromValuePosition.number_input(f'Enter Value in {country_codes[fromCurrency]}: ', value=1.0, min_value=0.0, step=1.0)
-    toValuePosition.markdown(f'<br><p style="font-family:Arial; font-size: 20px;">{round(fromValue*rate, 3)} {country_codes[toCurrency]}</p></br>', unsafe_allow_html=True)
+
+    period = periodPosition.radio('Select a period to generate Graph', ['10 days', '30 days', '3 months', '1 year'], index=0, horizontal=True)
+
+    if 'fromCurrency' not in st.session_state:
+
+        rate = getRates(country_codes[fromCurrency], country_codes[toCurrency])
+
+        rateText = f'<p style="font-family:sans-serif; color:Black; font-size: 22px;"><br>1 {fromCurrency} is equals to </br>{round(rate, 4)} {toCurrency}</p>'
+        ratePosition.markdown(rateText, unsafe_allow_html=True)
+
+        toValuePosition.markdown(f'<br><p style="font-family:Arial; font-size: 20px;">{round(fromValue*rate, 3)} {country_codes[toCurrency]}</p></br>', unsafe_allow_html=True)
+
+        data = yf.download(f'{country_codes[fromCurrency]}{country_codes[toCurrency]}=x', start=dt.date.today()-dt.timedelta(days=periodDataMapper[period]), end=dt.date.today()+dt.timedelta(days=1))
+        data['Rate']=data['Close']
+
+        fig = px.line(data['Rate'], markers=True)
+        fig.update_layout(
+            title=f'{country_codes[fromCurrency]}vs{country_codes[toCurrency]}',
+            xaxis_title="Date",
+            yaxis_title="Rate",
+            legend_title="legend",
+            font=dict(family="Arial", size=20, color="green")
+            )
+        graphPosition.plotly_chart(fig, use_container_width=False)
+
+        st.session_state.fromCurrency = fromCurrency
+        st.session_state.toCurrency = toCurrency
+        st.session_state.fromValue = fromValue
+        st.session_state.rate = rate
+        st.session_state.period = period
+        st.session_state.fig = fig
+
+
+
+
+    if st.session_state.fromValue != fromValue and (st.session_state.fromCurrency==fromCurrency and st.session_state.toCurrency==toCurrency):
+
+        rateText = f'<p style="font-family:sans-serif; color:Black; font-size: 22px;"><br>1 {fromCurrency} is equals to </br>{round(st.session_state.rate, 4)} {toCurrency}</p>'
+        ratePosition.markdown(rateText, unsafe_allow_html=True)
+
+        toValuePosition.markdown(f'<br><p style="font-family:Arial; font-size: 20px;">{round(fromValue*st.session_state.rate, 3)} {country_codes[toCurrency]}</p></br>', unsafe_allow_html=True)
+        graphPosition.plotly_chart(st.session_state.fig, use_container_width=False)
+        st.session_state.fromValue = fromValue
+
+
+
+    if st.session_state.fromCurrency!= fromCurrency or st.session_state.toCurrency != toCurrency:
+        rate = getRates(country_codes[fromCurrency], country_codes[toCurrency])
+
+        rateText = f'<p style="font-family:sans-serif; color:Black; font-size: 22px;"><br>1 {fromCurrency} is equals to </br>{round(rate, 4)} {toCurrency}</p>'
+        ratePosition.markdown(rateText, unsafe_allow_html=True)
+        toValuePosition.markdown(f'<br><p style="font-family:Arial; font-size: 20px;">{round(fromValue*rate, 3)} {country_codes[toCurrency]}</p></br>', unsafe_allow_html=True)
+
+        data = yf.download(f'{country_codes[fromCurrency]}{country_codes[toCurrency]}=x', start=dt.date.today()-dt.timedelta(days=periodDataMapper[period]), end=dt.date.today()+dt.timedelta(days=1))
+        data['Rate']=data['Close']
+
+        fig = px.line(data['Rate'], markers=True)
+        fig.update_layout(
+            title=f'{country_codes[fromCurrency]}vs{country_codes[toCurrency]}',
+            xaxis_title="Date",
+            yaxis_title="Rate",
+            legend_title="legend",
+            font=dict(family="Arial", size=20, color="green")
+            )
+        graphPosition.plotly_chart(fig, use_container_width=False)
+
+        st.session_state.fromCurrency = fromCurrency
+        st.session_state.toCurrency = toCurrency
+        st.session_state.fromValue = fromValue
+        st.session_state.rate = rate
+        st.session_state.period = period
+        st.session_state.fig = fig
+
+    if st.session_state.period != period:
+
+        rateText = f'<p style="font-family:sans-serif; color:Black; font-size: 22px;"><br>1 {fromCurrency} is equals to </br>{round(st.session_state.rate, 4)} {toCurrency}</p>'
+        ratePosition.markdown(rateText, unsafe_allow_html=True)
+
+        toValuePosition.markdown(f'<br><p style="font-family:Arial; font-size: 20px;">{round(fromValue*st.session_state.rate, 3)} {country_codes[toCurrency]}</p></br>', unsafe_allow_html=True)
+
+        data = yf.download(f'{country_codes[fromCurrency]}{country_codes[toCurrency]}=x', start=dt.date.today()-dt.timedelta(days=periodDataMapper[period]), end=dt.date.today()+dt.timedelta(days=1))
+        data['Rate']=data['Close']
+
+        fig = px.line(data['Rate'], markers=True)
+        fig.update_layout(
+            title=f'{country_codes[fromCurrency]}vs{country_codes[toCurrency]}',
+            xaxis_title="Date",
+            yaxis_title="Rate",
+            legend_title="legend",
+            font=dict(family="Arial", size=20, color="green")
+            )
+        graphPosition.plotly_chart(fig, use_container_width=False)
+
+        st.session_state.period = period
+        st.session_state.fig = fig
+
+
 
 
     # Graph Element code
 
-    periodPosition = graphCol.empty()
-    graphPosition = graphCol.empty()
 
-    period = periodPosition.radio('Select a period to generate Graph', ['10 days', '30 days', '3 months', '1 year'], index=0, horizontal=True)
+    # data = yf.download(f'{country_codes[fromCurrency]}{country_codes[toCurrency]}=x', start=dt.date.today()-dt.timedelta(days=periodDataMapper[period]), end=dt.date.today()+dt.timedelta(days=1))
+    # data['Rate']=data['Close']
 
-    data = yf.download(f'{country_codes[fromCurrency]}{country_codes[toCurrency]}=x', start=dt.date.today()-dt.timedelta(days=periodDataMapper[period]), end=dt.date.today()+dt.timedelta(days=1))
-    data['Rate']=data['Close']
-
-    fig = px.line(data['Rate'], markers=True)
-    fig.update_layout(
-        title=f'{country_codes[fromCurrency]}vs{country_codes[toCurrency]}',
-        xaxis_title="Date",
-        yaxis_title="Rate",
-        legend_title="legend",
-        font=dict(family="Arial", size=20, color="green")
-        )
-    graphPosition.plotly_chart(fig, use_container_width=False)
+    # fig = px.line(data['Rate'], markers=True)
+    # fig.update_layout(
+    #     title=f'{country_codes[fromCurrency]}vs{country_codes[toCurrency]}',
+    #     xaxis_title="Date",
+    #     yaxis_title="Rate",
+    #     legend_title="legend",
+    #     font=dict(family="Arial", size=20, color="green")
+    #     )
+    # graphPosition.plotly_chart(fig, use_container_width=False)
 
 
 
