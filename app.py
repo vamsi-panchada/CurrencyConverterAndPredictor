@@ -354,3 +354,6 @@ def main():
 
 if __name__=='__main__':
     main()
+
+    st.markdown('This app is developed by Vamsi Panchada.')
+    st.markdown('for any queries feel free to mail me @: vamsipanchada@icloud.com')
